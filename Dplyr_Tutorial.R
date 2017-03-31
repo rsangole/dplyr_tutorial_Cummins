@@ -184,3 +184,50 @@ df.clean %>%
   filter(count>20, dist<2000)
 
 # Visualizing -------------------------------------------------------------
+df.clean %>%
+  group_by(tailnum) %>%
+  summarise(
+    count=n(),
+    dist=mean(distance),
+    delay=mean(arr_delay)
+  ) %>%
+  filter(count>20, dist<2000) %>%
+  ggplot(aes(dist, delay)) +
+  geom_point(aes(size = count), alpha = 1/2) +
+  geom_smooth() +
+  scale_size_area()
+
+df.clean %>%
+  group_by(carrier) %>%
+  summarize(
+    avg_dist = mean(distance)
+  ) %>%
+  ggplot(aes(x=carrier,y=avg_dist)) +
+  geom_bar(stat='identity')+
+  labs(x='Carrier',y='Average Distance (km)',title='Average distance by carrier')+
+  theme_bw()
+
+df.clean %>%
+  sample_frac(0.005) %>%
+  ggplot(aes(dep_delay,arr_delay,color=origin))+
+  geom_point(alpha=0.5)+
+  theme_minimal()
+  # geom_smooth()
+
+# What do the departure delays look like for the top 20% airlines of the most
+# deviant airlines?
+df.clean %>%
+  group_by(carrier) %>%
+  mutate(avg_delay=mean(dep_delay)) %>%
+  ungroup(carrier) %>%
+  mutate(q80=quantile(avg_delay,.8)) %>%
+  filter(avg_delay>q80) %>%
+  ggplot(aes(dep_delay,color=carrier))+
+  geom_density()+
+  scale_x_continuous(limits = c(-50,200))+
+  theme_minimal()
+
+df.clean %>%
+  ggplot(aes(y=arr_delay,x=carrier)) +
+  geom_boxplot(outlier.color = 'red',outlier.size = .1)
+
