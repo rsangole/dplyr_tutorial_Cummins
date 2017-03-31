@@ -15,16 +15,16 @@ dim(df)
 
 head(df)
 
-str(df)
+glimpse(df)
 
 table(complete.cases(df))
 prop.table(table(complete.cases(df)))
-ccases <- complete.cases(df)
 
 # !ADVANCED!
 map_int(.x = df, .f = ~ sum(is.na(.x)))
 
 # Cleaning dirty data -----------------------------------------------------
+ccases <- complete.cases(df)
 
 df.clean <- df %>%
   filter(ccases)
@@ -114,6 +114,11 @@ df.clean %>%
     largest_delay=max(dep_delay)
   )
 
+df.clean %>%
+  group_by(carrier) %>%
+  top_n(2, dep_delay) %>%
+  select(carrier,dep_delay) %>%
+  arrange(carrier,-dep_delay)
 
 # Grouping data -----------------------------------------------------------
 
@@ -228,6 +233,11 @@ df.clean %>%
   theme_minimal()
 
 df.clean %>%
-  ggplot(aes(y=arr_delay,x=carrier)) +
+  ggplot(aes(y=arr_delay,x=origin)) +
   geom_boxplot(outlier.color = 'red',outlier.size = .1)
 
+df.clean %>%
+  filter(month==1) %>%
+  ggplot(aes(y=arr_delay,x=carrier)) +
+  geom_point(aes(color=origin),alpha=0.5) +
+  geom_jitter(aes(color=origin),alpha=0.5)
